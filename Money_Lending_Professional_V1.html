@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Lending Manager Professional</title>
+<style>
+:root{
+  --bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#6b7280;
+  --primary:#2563eb;--secondary:#374151;--danger:#dc2626;--success:#15803d;
+  --border:#e5e7eb;--soft:#f9fafb;--warning:#d97706;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+header{background:#111827;color:#fff;padding:16px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{margin:0;font-size:22px}
+.container{max-width:1500px;margin:auto;padding:18px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+.tabs button{background:#e5e7eb;color:#111827}
+.tabs button.active{background:var(--primary);color:#fff}
+.section{display:none}
+.section.active{display:block}
+button,.btn,.file-btn{border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:700}
+.primary{background:var(--primary);color:#fff}
+.secondary{background:var(--secondary);color:#fff}
+.danger{background:var(--danger);color:#fff}
+.success{background:var(--success);color:#fff}
+.warning{background:var(--warning);color:#fff}
+.light{background:#e5e7eb;color:#111827}
+.full{width:100%}
+.top-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+.available-card{border:2px solid var(--primary)}
+.eyebrow{font-size:12px;font-weight:800;color:var(--muted)}
+.big-value{font-size:36px;font-weight:800;margin:5px 0}
+.standard-rate{font-size:30px;font-weight:800}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}
+.stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px}
+.stat small{color:var(--muted)}
+.stat strong{display:block;font-size:21px;margin-top:5px}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:5px}
+input,select,textarea{width:100%;padding:9px;border:1px solid #d1d5db;border-radius:8px;background:#fff;min-height:38px}
+input[readonly],textarea[readonly]{background:var(--soft);font-weight:700}
+textarea{min-height:82px;resize:vertical}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:end}
+.note{font-size:12px;color:var(--muted);line-height:1.55;margin-top:10px}
+.toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.toolbar h2,.card h2{margin-top:0}
+.toolbar input{max-width:340px}
+.table-wrap{overflow:auto;max-height:620px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{border-bottom:1px solid var(--border);padding:8px 6px;text-align:left;vertical-align:top}
+th{background:var(--soft);position:sticky;top:0;z-index:1}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.paid{background:#dcfce7;color:#166534}
+.active-loan{background:#dbeafe;color:#1d4ed8}
+.overdue{background:#fee2e2;color:#991b1b}
+.client-card{border:1px solid var(--border);border-radius:10px;padding:12px;background:#fff;margin-top:10px}
+.subtle{background:var(--soft);border:1px dashed var(--border);border-radius:10px;padding:12px}
+.section-title{font-size:13px;font-weight:800;margin:14px 0 8px;border-left:4px solid var(--secondary);padding-left:8px}
+.hidden{display:none!important}
+.mode-bar{margin:14px 0;padding:12px 14px;border:2px solid var(--border);border-radius:10px;background:#fff;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.mode-bar.test{border-color:var(--warning);background:#fffbeb}.mode-pill{font-weight:800}.test-warning{color:#92400e;font-weight:700}
+@media(max-width:1050px){.grid-4,.stats{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.grid-2,.grid-3,.grid-4,.stats,.top-grid{grid-template-columns:1fr}.container{padding:10px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Money Lending Manager</h1>
+  <div style="font-size:12px;color:#d1d5db">Professional Client & Loan Management</div>
+</header>
+
+<div class="container">
+
+  <div class="top-grid">
+    <div class="card available-card">
+      <div class="eyebrow">AVAILABLE MONEY FOR LOAN</div>
+      <div id="availableFunds" class="big-value">$0.00</div>
+      <div class="note">Available cash = Starting Loan Fund + actual repayments received − principal lent out. Unpaid accrued interest does not become available cash.</div>
+      <div class="actions">
+        <div style="min-width:260px">
+          <label>Starting Loan Fund / Capital</label>
+          <input id="startingFund" type="text" inputmode="decimal" placeholder="e.g. 1000.00" oninput="sanitizeDecimal(this)">
+        </div>
+        <button class="primary" type="button" onclick="saveStartingFund()">Save Fund</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">STANDARD REFERENCE FLAT RATE</div>
+      <div class="standard-rate">25%</div>
+      <div class="note">Reference only. Every new loan can use a different agreed flat rate.</div>
+    </div>
+  </div>
+
+  <div id="modeBar" class="mode-bar">
+    <div><span class="mode-pill">Data Mode: <span id="modeLabel">LIVE</span></span><div id="modeHelp" class="note">Live Mode stores your real working records.</div></div>
+    <div class="actions" style="margin-top:0">
+      <button id="modeToggleBtn" class="warning" type="button" onclick="toggleDataMode()">Switch to Test Mode</button>
+      <button id="resetTestBtn" class="danger hidden" type="button" onclick="resetTestData()">Reset Test Data</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="active" onclick="showTab('dashboard',this)">Dashboard</button>
+    <button onclick="showTab('clientsearch',this)">Client Search</button>
+    <button onclick="showTab('borrowers',this)">Borrowers</button>
+    <button onclick="showTab('loans',this)">New Loan</button>
+    <button onclick="showTab('repayments',this)">Repayments</button>
+    <button onclick="showTab('updates',this)">Update Records</button>
+    <button onclick="showTab('reports',this)">Reports</button>
+    <button onclick="showTab('backup',this)">Backup</button>
+  </div>
+
+  <section id="dashboard" class="section active">
+    <div class="stats">
+      <div class="stat"><small>Available Cash</small><strong id="dashAvailable">$0.00</strong></div>
+      <div class="stat"><small>Total Principal Lent</small><strong id="dashPrincipal">$0.00</strong></div>
+      <div class="stat"><small>Total Money Owed</small><strong id="dashOutstanding">$0.00</strong></div>
+      <div class="stat"><small>Total Repayments Received</small><strong id="dashRepaid">$0.00</strong></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><small>Partner 1 Accrued Interest</small><strong id="dashP1">$0.00</strong></div>
+      <div class="stat"><small>Partner 2 Accrued Interest</small><strong id="dashP2">$0.00</strong></div>
+      <div class="stat"><small>Active Loans</small><strong id="dashActive">0</strong></div>
+      <div class="stat"><small>Overdue Loans</small><strong id="dashOverdue">0</strong></div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <div>
+          <h2>Loan Overview</h2>
+          <div class="note">Active, overdue and fully paid loans.</div>
+        </div>
+        <input id="dashboardSearch" placeholder="Search borrower, ID number, phone or address..." oninput="renderDashboardTable()">
+      </div>
+      <div class="table-wrap" id="dashboardTable"></div>
+    </div>
+  </section>
+
+
+  <section id="clientsearch" class="section">
+    <div class="card">
+      <h2>Client Search</h2>
+      <div class="note">Search by name, surname, Identification Number or phone number to view a client's information at a glance.</div>
+
+      <div class="grid-2" style="margin-top:12px">
+        <div>
+          <label>Search Client</label>
+          <input id="clientSearchInput" placeholder="Name, surname, ID number or phone..." oninput="renderClientSearchResults()">
+        </div>
+      </div>
+
+      <div id="clientSearchResults" style="margin-top:12px"></div>
+      <div id="clientSearchSummary" style="margin-top:14px"></div>
+    </div>
+  </section>
+
+  <section id="borrowers" class="section">
+    <div class="card">
+      <h2>Borrower Register</h2>
+      <div class="note">A borrower is saved once. The same borrower may have several separate loans over time, including more than one active loan.</div>
+
+      <div class="grid-4" style="margin-top:12px">
+        <div><label>Name</label><input id="bName"></div>
+        <div><label>Surname</label><input id="bSurname"></div>
+        <div><label>Identification Number</label><input id="bIdNumber" type="text" placeholder="Enter Identification Number"></div>
+        <div><label>Phone Number</label><input id="bPhone" type="text" inputmode="numeric" oninput="sanitizePhone(this)"></div>
+        <div><label>Physical Address</label><input id="bAddress"></div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="borrowerSaveBtn" type="button" onclick="saveBorrower()">Save Borrower</button>
+        <button class="secondary" type="button" onclick="clearBorrowerForm()">Clear</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="toolbar">
+        <h2>Borrowers</h2>
+        <input id="borrowerSearch" placeholder="Search borrower, ID number..." oninput="renderBorrowers()">
+      </div>
+      <div class="table-wrap" id="borrowerTable"></div>
+    </div>
+  </section>
+
+  <section id="loans" class="section">
+    <div class="card">
+      <h2>Create New Loan</h2>
+      <div class="note">Choose an existing borrower or first add them in the Borrowers section. Each saved loan is a separate historical record.</div>
+
+      <div class="grid-3" style="margin-top:12px">
+        <div><label>Borrower</label><select id="loanBorrower"></select></div>
+        <div><label>Loan Amount</label><input id="loanAmount" type="text" inputmode="decimal" oninput="sanitizeDecimal(this);calculateNewLoanPreview()"></div>
+        <div><label>Agreed Flat Interest Rate (%)</label><input id="loanRate" type="text" inputmode="decimal" value="25" oninput="sanitizeDecimal(this);calculateNewLoanPreview()"></div>
+
+        <div><label>Date Loan Taken</label><input id="loanDate" type="date"></div>
+        <div><label>Date to Return Loan</label><input id="loanReturnDate" type="date"></div>
+        <div><label>Number of Days</label><input id="loanDays" readonly></div>
+
+        <div><label>Partner 1 Agreed Share (%)</label><input id="loanP1" type="text" inputmode="decimal" value="80" oninput="sanitizeDecimal(this);syncNewLoanPartner();calculateNewLoanPreview()"></div>
+        <div><label>Partner 2 Agreed Share (%)</label><input id="loanP2" readonly></div>
+        <div><label>Status at Creation</label><input id="loanPreviewStatus" readonly></div>
+      </div>
+
+      <div class="subtle" style="margin-top:14px">
+        <div class="grid-4">
+          <div><label>Interest for Agreed Period</label><input id="loanPreviewInterest" readonly></div>
+          <div><label>Total Due on Return Date</label><input id="loanPreviewDue" readonly></div>
+          <div><label>Equivalent Daily Overdue Rate</label><input id="loanPreviewDailyRate" readonly></div>
+          <div><label>Available Cash After Loan</label><input id="loanPreviewCash" readonly></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" type="button" onclick="createLoan()">Create Loan</button>
+        <button class="secondary" type="button" onclick="clearLoanForm()">Clear</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="repayments" class="section">
+    <div class="card">
+      <h2>Record Repayment / Partial Repayment</h2>
+      <div class="note">Repayments are optional until money is actually received. A partial repayment reduces the outstanding balance from that payment date onward.</div>
+
+      <div class="grid-3" style="margin-top:12px">
+        <div><label>Borrower</label><select id="repayBorrower" onchange="renderRepaymentLoanOptions()"></select></div>
+        <div><label>Loan</label><select id="repayLoan" onchange="renderRepaymentLoanSummary()"></select></div>
+        <div><label>Amount Repaid</label><input id="repayAmount" type="text" inputmode="decimal" oninput="sanitizeDecimal(this)"></div>
+
+        <div><label>Actual Repayment Date</label><input id="repayDate" type="date"></div>
+        <div><label>Payment Method</label>
+          <select id="repayMethod">
+            <option>Cash</option>
+            <option>Bank Transfer</option>
+            <option>EcoCash</option>
+            <option>Swipe</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div><label>Notes</label><input id="repayNotes" placeholder="Optional"></div>
+      </div>
+
+      <div id="repaySummary" class="subtle" style="margin-top:14px">Select a loan to view its current position.</div>
+
+      <div class="actions">
+        <button class="success" type="button" onclick="recordRepayment()">Record Repayment</button>
+        <button class="secondary" type="button" onclick="clearRepaymentForm()">Clear</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="toolbar">
+        <h2>Repayment History</h2>
+        <input id="repaymentSearch" placeholder="Search borrower, ID number or phone..." oninput="renderRepaymentHistory()">
+      </div>
+      <div class="table-wrap" id="repaymentHistory"></div>
+    </div>
+  </section>
+
+  <section id="updates" class="section">
+    <div class="card">
+      <h2>Recall Client / Update Records</h2>
+      <div class="note">Use this section when an existing client returns. You can correct personal details, update a specific existing loan, record a repayment, or start another new loan without replacing old history.</div>
+
+      <div class="grid-2" style="margin-top:12px">
+        <div>
+          <label>Find Client</label>
+          <input id="recallSearch" placeholder="Name, surname, ID number or phone..." oninput="renderRecallResults()">
+        </div>
+      </div>
+
+      <div id="recallResults" style="margin-top:12px"></div>
+      <div id="recalledClientPanel" style="margin-top:14px"></div>
+    </div>
+
+    <div id="loanEditCard" class="card hidden" style="margin-top:16px">
+      <h2>Update Existing Loan</h2>
+      <div class="note">Use this only to correct or update the selected loan. Repayments should normally be recorded in the Repayments section.</div>
+
+      <div class="grid-3">
+        <div><label>Loan Amount</label><input id="editLoanAmount" type="text" inputmode="decimal" oninput="sanitizeDecimal(this);calculateEditLoanPreview()"></div>
+        <div><label>Agreed Flat Interest Rate (%)</label><input id="editLoanRate" type="text" inputmode="decimal" oninput="sanitizeDecimal(this);calculateEditLoanPreview()"></div>
+        <div><label>Partner 1 Share (%)</label><input id="editP1" type="text" inputmode="decimal" oninput="sanitizeDecimal(this);syncEditPartner();calculateEditLoanPreview()"></div>
+
+        <div><label>Date Loan Taken</label><input id="editLoanDate" type="date"></div>
+        <div><label>Date to Return Loan</label><input id="editReturnDate" type="date"></div>
+        <div><label>Partner 2 Share (%)</label><input id="editP2" readonly></div>
+      </div>
+
+      <div id="editLoanSummary" class="subtle" style="margin-top:14px"></div>
+
+      <div class="actions">
+        <button class="primary" type="button" onclick="saveLoanUpdate()">Update Loan Record</button>
+        <button class="secondary" type="button" onclick="closeLoanEdit()">Cancel</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="reports" class="section">
+    <div class="card">
+      <h2>Reports</h2>
+      <div class="note">Generate a PDF report showing the full loan register and cumulative partner interest for the selected period.</div>
+
+      <div class="grid-3" style="margin-top:12px">
+        <div><label>Report From</label><input id="reportFrom" type="date"></div>
+        <div><label>Report To</label><input id="reportTo" type="date"></div>
+        <div style="display:flex;align-items:end"><button class="primary full" type="button" onclick="downloadLoanReport()">Download PDF Report</button></div>
+      </div>
+
+      <div id="reportSummary" class="stats"></div>
+    </div>
+  </section>
+
+  <section id="backup" class="section">
+    <div class="card">
+      <h2>Backup & Restore</h2>
+      <div class="note">This local version stores data in this browser. Export a backup regularly. The online version will later move this data to a shared central database.</div>
+
+      <div class="actions">
+        <button class="secondary" type="button" onclick="exportData()">Export Backup</button>
+        <label class="file-btn light">Import Backup<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const LIVE_DB_KEY='moneyLendingProfessionalV1';
+const TEST_DB_KEY='moneyLendingProfessionalV1_TEST';
+const MODE_KEY='moneyLendingProfessionalV1_MODE';
+let dataMode=localStorage.getItem(MODE_KEY)==='test'?'test':'live';
+function currentDBKey(){return dataMode==='test'?TEST_DB_KEY:LIVE_DB_KEY;}
+const DB_KEY=LIVE_DB_KEY; // retained for legacy compatibility only
+const LEGACY_RECORD_KEY='moneyLendingFreshFinalV1';
+const LEGACY_FUND_KEY='moneyLendingFreshFinalFundV1';
+
+let db={
+  startingFund:0,
+  borrowers:[],
+  loans:[],
+  payments:[]
+};
+
+let editingBorrowerId=null;
+let selectedRecallBorrowerId=null;
+let editingLoanId=null;
+
+function uid(prefix){
+  return prefix+'-'+Date.now()+'-'+Math.random().toString(16).slice(2,7);
+}
+function localISODate(d=new Date()){
+  const y=d.getFullYear();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+const today=localISODate();
+
+function money(n){
+  return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(Number(n||0));
+}
+function esc(v){
+  return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+function sanitizePhone(el){el.value=String(el.value||'').replace(/\D/g,'');}
+function sanitizeDecimal(el){
+  let v=String(el.value||'').replace(/[^0-9.]/g,'');
+  const i=v.indexOf('.');
+  if(i!==-1)v=v.slice(0,i+1)+v.slice(i+1).replace(/\./g,'');
+  el.value=v;
+}
+function numericValue(id){
+  const raw=document.getElementById(id).value.trim();
+  if(raw===''||!/^\d+(\.\d+)?$/.test(raw))return NaN;
+  return Number(raw);
+}
+function dayDiff(a,b){
+  if(!a||!b||b<=a)return 0;
+  return Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000);
+}
+function borrowerById(id){return db.borrowers.find(b=>b.id===id);}
+function loanById(id){return db.loans.find(l=>l.id===id);}
+function paymentsForLoan(id){
+  return db.payments.filter(p=>p.loanId===id).slice().sort((a,b)=>a.date.localeCompare(b.date));
+}
+function saveDB(){
+  localStorage.setItem(currentDBKey(),JSON.stringify(db));
+  renderAll();
+}
+function showTab(id,btn){
+  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn)btn.classList.add('active');
+}
+
+/* ---------- Core Loan Mathematics ---------- */
+function loanPosition(loan,endDate=today){
+  const principal=Number(loan.principal||0);
+  const rate=Number(loan.agreedRate||0)/100;
+  const termDays=Math.max(1,dayDiff(loan.loanDate,loan.returnDate));
+  const dailyRate=Math.pow(1+rate,1/termDays)-1;
+  const dueAtReturn=principal*(1+rate);
+
+  let balance=dueAtReturn;
+  let totalPaid=0;
+  let cursor=loan.returnDate;
+
+  const pays=paymentsForLoan(loan.id);
+
+  pays.filter(p=>p.date<=loan.returnDate&&p.date<=endDate).forEach(p=>{
+    balance=Math.max(0,balance-Number(p.amount));
+    totalPaid+=Number(p.amount);
+  });
+
+  if(endDate<=loan.returnDate){
+    return {
+      balance,totalPaid,dailyRate,dueAtReturn,
+      totalInterestAccrued:Math.max(0,balance+totalPaid-principal),
+      overdueInterest:0
+    };
+  }
+
+  pays.filter(p=>p.date>loan.returnDate&&p.date<=endDate).forEach(p=>{
+    if(balance>0){
+      balance*=Math.pow(1+dailyRate,dayDiff(cursor,p.date));
+      balance=Math.max(0,balance-Number(p.amount));
+    }
+    totalPaid+=Number(p.amount);
+    cursor=p.date;
+  });
+
+  if(balance>0&&endDate>cursor){
+    balance*=Math.pow(1+dailyRate,dayDiff(cursor,endDate));
+  }
+
+  const totalInterestAccrued=Math.max(0,balance+totalPaid-principal);
+  const agreedInterest=principal*rate;
+
+  return {
+    balance,totalPaid,dailyRate,dueAtReturn,totalInterestAccrued,
+    overdueInterest:Math.max(0,totalInterestAccrued-agreedInterest)
+  };
+}
+function loanStatus(loan){
+  const p=loanPosition(loan,today);
+  if(p.balance<=0.005)return ['Paid','paid'];
+  if(today>loan.returnDate)return ['Overdue','overdue'];
+  return ['Active','active-loan'];
+}
+function availableCash(){
+  const principal=db.loans.reduce((s,l)=>s+Number(l.principal||0),0);
+  const received=db.payments.reduce((s,p)=>s+Number(p.amount||0),0);
+  return Number(db.startingFund||0)+received-principal;
+}
+function totalOutstanding(){
+  return db.loans.reduce((s,l)=>s+loanPosition(l,today).balance,0);
+}
+function partnerInterestTotals(loans=db.loans){
+  let p1=0,p2=0;
+  loans.forEach(l=>{
+    const pos=loanPosition(l,today);
+    p1+=pos.totalInterestAccrued*(Number(l.partner1Pct||0)/100);
+    p2+=pos.totalInterestAccrued*(Number(l.partner2Pct||0)/100);
+  });
+  return {p1,p2};
+}
+
+/* ---------- Starting Fund ---------- */
+function saveStartingFund(){
+  const raw=document.getElementById('startingFund').value.trim();
+  if(raw===''||!/^\d+(\.\d+)?$/.test(raw))return alert('Starting Loan Fund must contain numbers only, with an optional decimal point.');
+  const n=Number(raw);
+  if(!Number.isFinite(n)||n<0)return alert('Starting Loan Fund must be zero or a positive amount.');
+  db.startingFund=n;
+  saveDB();
+  alert('Starting Loan Fund saved.');
+}
+
+
+/* ---------- Client Search ---------- */
+function renderClientSearchResults(){
+  const q=(document.getElementById('clientSearchInput')?.value||'').trim().toLowerCase();
+  const box=document.getElementById('clientSearchResults');
+  const summary=document.getElementById('clientSearchSummary');
+
+  summary.innerHTML='';
+
+  if(!q){
+    box.innerHTML='<div class="note">Start typing to search for a client.</div>';
+    return;
+  }
+
+  const rows=db.borrowers.filter(b=>
+    (b.name+' '+b.surname+' '+(b.idNumber||'')+' '+b.phone+' '+b.address)
+      .toLowerCase()
+      .includes(q)
+  ).slice(0,30);
+
+  if(!rows.length){
+    box.innerHTML='<div class="note">No matching client found.</div>';
+    return;
+  }
+
+  box.innerHTML=
+    '<table><thead><tr>'+
+    '<th>Name</th><th>Surname</th><th>Identification Number</th><th>Phone</th><th>Address</th><th>Loans</th><th></th>'+
+    '</tr></thead><tbody>'+
+    rows.map(b=>{
+      const loanCount=db.loans.filter(l=>l.borrowerId===b.id).length;
+      return `<tr>
+        <td>${esc(b.name)}</td>
+        <td>${esc(b.surname)}</td>
+        <td>${esc(b.idNumber||'')}</td>
+        <td>${esc(b.phone)}</td>
+        <td>${esc(b.address)}</td>
+        <td>${loanCount}</td>
+        <td><button class="secondary" type="button" onclick="showClientAtGlance('${b.id}')">View Client</button></td>
+      </tr>`;
+    }).join('')+
+    '</tbody></table>';
+}
+
+function showClientAtGlance(id){
+  const b=borrowerById(id);
+  if(!b)return alert('Client record not found.');
+
+  const loans=db.loans
+    .filter(l=>l.borrowerId===id)
+    .slice()
+    .sort((a,b)=>b.loanDate.localeCompare(a.loanDate));
+
+  let active=0,overdue=0,paid=0;
+  let totalBorrowed=0,totalRepaid=0,totalOutstanding=0;
+  let partner1Total=0,partner2Total=0;
+
+  loans.forEach(l=>{
+    const pos=loanPosition(l,today);
+    const st=loanStatus(l)[0];
+
+    totalBorrowed+=Number(l.principal||0);
+    totalRepaid+=pos.totalPaid;
+    totalOutstanding+=pos.balance;
+    partner1Total+=pos.totalInterestAccrued*(Number(l.partner1Pct||0)/100);
+    partner2Total+=pos.totalInterestAccrued*(Number(l.partner2Pct||0)/100);
+
+    if(st==='Paid')paid++;
+    else if(st==='Overdue')overdue++;
+    else active++;
+  });
+
+  document.getElementById('clientSearchSummary').innerHTML=`
+    <div class="client-card">
+      <div class="toolbar">
+        <div>
+          <div class="eyebrow">CLIENT AT A GLANCE</div>
+          <h2 style="margin:3px 0">${esc(b.name)} ${esc(b.surname)}</h2>
+          <div class="note">
+            Identification Number: ${esc(b.idNumber||'Not recorded')} ·
+            Phone: ${esc(b.phone)} ·
+            Address: ${esc(b.address)}
+          </div>
+        </div>
+        <div class="actions">
+          <button class="primary" type="button" onclick="startNewLoanFromSearch('${b.id}')">Create New Loan</button>
+          <button class="success" type="button" onclick="startRepaymentFromSearch('${b.id}')">Record Repayment</button>
+          <button class="secondary" type="button" onclick="openUpdateRecordsFromSearch('${b.id}')">Update Record</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><small>Total Loans</small><strong>${loans.length}</strong></div>
+        <div class="stat"><small>Active Loans</small><strong>${active}</strong></div>
+        <div class="stat"><small>Overdue Loans</small><strong>${overdue}</strong></div>
+        <div class="stat"><small>Paid Loans</small><strong>${paid}</strong></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><small>Total Borrowed</small><strong>${money(totalBorrowed)}</strong></div>
+        <div class="stat"><small>Total Repaid</small><strong>${money(totalRepaid)}</strong></div>
+        <div class="stat"><small>Current Outstanding</small><strong>${money(totalOutstanding)}</strong></div>
+        <div class="stat"><small>Partner Interest Total</small><strong>${money(partner1Total+partner2Total)}</strong></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><small>Partner 1 Accrued Interest</small><strong>${money(partner1Total)}</strong></div>
+        <div class="stat"><small>Partner 2 Accrued Interest</small><strong>${money(partner2Total)}</strong></div>
+      </div>
+
+      <div style="margin-top:14px">
+        <h3 style="margin-bottom:6px">Loan History</h3>
+        ${
+          loans.length
+          ? `<div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Loan Date</th><th>Return Date</th><th>Loan Amount</th><th>Rate</th>
+                    <th>Partner 1 %</th><th>Partner 2 %</th>
+                    <th>Partner 1 Interest</th><th>Partner 2 Interest</th>
+                    <th>Total Repaid</th><th>Balance</th><th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${loans.map(l=>{
+                    const pos=loanPosition(l,today);
+                    const st=loanStatus(l);
+                    const p1i=pos.totalInterestAccrued*(Number(l.partner1Pct||0)/100);
+                    const p2i=pos.totalInterestAccrued*(Number(l.partner2Pct||0)/100);
+
+                    return `<tr>
+                      <td>${esc(l.loanDate)}</td>
+                      <td>${esc(l.returnDate)}</td>
+                      <td>${money(l.principal)}</td>
+                      <td>${Number(l.agreedRate||0).toFixed(2)}%</td>
+                      <td>${Number(l.partner1Pct||0).toFixed(2)}%</td>
+                      <td>${Number(l.partner2Pct||0).toFixed(2)}%</td>
+                      <td>${money(p1i)}</td>
+                      <td>${money(p2i)}</td>
+                      <td>${money(pos.totalPaid)}</td>
+                      <td><strong>${money(pos.balance)}</strong></td>
+                      <td><span class="badge ${st[1]}">${st[0]}</span></td>
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>`
+          : '<div class="note">This client has no loan history yet.</div>'
+        }
+      </div>
+    </div>`;
+}
+
+function startNewLoanFromSearch(id){
+  const tab=[...document.querySelectorAll('.tabs button')].find(x=>x.textContent==='New Loan');
+  showTab('loans',tab);
+  document.getElementById('loanBorrower').value=id;
+  clearLoanFieldsButKeepBorrower();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function startRepaymentFromSearch(id){
+  const openLoans=db.loans.filter(l=>l.borrowerId===id&&loanPosition(l,today).balance>0.005);
+
+  if(!openLoans.length){
+    return alert('This client has no active or overdue loan requiring repayment.');
+  }
+
+  const tab=[...document.querySelectorAll('.tabs button')].find(x=>x.textContent==='Repayments');
+  showTab('repayments',tab);
+
+  document.getElementById('repayBorrower').value=id;
+  renderRepaymentLoanOptions();
+
+  if(openLoans.length===1){
+    document.getElementById('repayLoan').value=openLoans[0].id;
+    renderRepaymentLoanSummary();
+  }
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function openUpdateRecordsFromSearch(id){
+  const tab=[...document.querySelectorAll('.tabs button')].find(x=>x.textContent==='Update Records');
+  showTab('updates',tab);
+
+  const b=borrowerById(id);
+  document.getElementById('recallSearch').value=b?b.phone:'';
+  renderRecallResults();
+  selectRecallBorrower(id);
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------- Borrowers ---------- */
+function saveBorrower(){
+  const name=document.getElementById('bName').value.trim();
+  const surname=document.getElementById('bSurname').value.trim();
+  const idNumber=document.getElementById('bIdNumber').value.trim();
+  const phone=document.getElementById('bPhone').value.trim();
+  const address=document.getElementById('bAddress').value.trim();
+
+  if(!name||!surname||!idNumber||!phone||!address)return alert('Please complete all borrower details, including Identification Number.');
+  if(!/^[0-9]+$/.test(phone))return alert('Phone Number must contain numbers only.');
+
+  const duplicateId=db.borrowers.find(b=>String(b.idNumber||'').trim().toLowerCase()===idNumber.trim().toLowerCase()&&b.id!==editingBorrowerId);
+  if(duplicateId)return alert('A borrower with this Identification Number already exists. Use Update Records to manage the existing client.');
+
+  const duplicate=db.borrowers.find(b=>b.phone===phone&&b.id!==editingBorrowerId);
+  if(duplicate)return alert('A borrower with this phone number already exists. Use Update Records to manage the existing client.');
+
+  if(editingBorrowerId){
+    const b=borrowerById(editingBorrowerId);
+    if(!b)return alert('Borrower record not found.');
+    Object.assign(b,{name,surname,idNumber,phone,address});
+  }else{
+    db.borrowers.push({id:uid('B'),name,surname,idNumber,phone,address,created:today});
+  }
+
+  clearBorrowerForm();
+  saveDB();
+}
+function clearBorrowerForm(){
+  ['bName','bSurname','bIdNumber','bPhone','bAddress'].forEach(id=>document.getElementById(id).value='');
+  editingBorrowerId=null;
+  document.getElementById('borrowerSaveBtn').textContent='Save Borrower';
+}
+function editBorrower(id){
+  const b=borrowerById(id);
+  if(!b)return;
+  editingBorrowerId=id;
+  document.getElementById('bName').value=b.name;
+  document.getElementById('bSurname').value=b.surname;
+  document.getElementById('bIdNumber').value=b.idNumber||'';
+  document.getElementById('bPhone').value=b.phone;
+  document.getElementById('bAddress').value=b.address;
+  document.getElementById('borrowerSaveBtn').textContent='Update Borrower';
+  const tab=[...document.querySelectorAll('.tabs button')].find(x=>x.textContent==='Borrowers');
+  showTab('borrowers',tab);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderBorrowers(){
+  const q=(document.getElementById('borrowerSearch')?.value||'').toLowerCase();
+  const rows=db.borrowers.filter(b=>(b.name+' '+b.surname+' '+(b.idNumber||'')+' '+b.phone+' '+b.address).toLowerCase().includes(q));
+  const wrap=document.getElementById('borrowerTable');
+
+  if(!rows.length){wrap.innerHTML='<div class="note">No borrowers found.</div>';return;}
+
+  wrap.innerHTML='<table><thead><tr><th>Name</th><th>Surname</th><th>Identification Number</th><th>Phone</th><th>Address</th><th>Loans</th><th></th></tr></thead><tbody>'+
+    rows.map(b=>{
+      const loans=db.loans.filter(l=>l.borrowerId===b.id).length;
+      return `<tr>
+        <td>${esc(b.name)}</td><td>${esc(b.surname)}</td><td>${esc(b.idNumber||'')}</td><td>${esc(b.phone)}</td><td>${esc(b.address)}</td>
+        <td>${loans}</td>
+        <td><button class="secondary" onclick="editBorrower('${b.id}')">Edit Personal Details</button></td>
+      </tr>`;
+    }).join('')+
+    '</tbody></table>';
+}
+function renderBorrowerSelects(){
+  const opts='<option value="">Select borrower...</option>'+db.borrowers.map(b=>`<option value="${b.id}">${esc(b.name)} ${esc(b.surname)} - ${esc(b.idNumber||'No ID')} - ${esc(b.phone)}</option>`).join('');
+  document.getElementById('loanBorrower').innerHTML=opts;
+  document.getElementById('repayBorrower').innerHTML=opts;
+}
+
+/* ---------- New Loan ---------- */
+function syncNewLoanPartner(){
+  const p1=numericValue('loanP1');
+  const p2=document.getElementById('loanP2');
+  if(!Number.isFinite(p1)){p2.value='';return;}
+  if(p1<0){document.getElementById('loanP1').value='0';p2.value='100';return;}
+  if(p1>100){document.getElementById('loanP1').value='100';p2.value='0';return;}
+  p2.value=Number((100-p1).toFixed(4)).toString();
+}
+function enforceLoanDates(prefix='loan'){
+  const loan=document.getElementById(prefix==='loan'?'loanDate':'editLoanDate');
+  const ret=document.getElementById(prefix==='loan'?'loanReturnDate':'editReturnDate');
+
+  loan.max=today;
+  if(loan.value&&loan.value>today){
+    loan.value=today;
+    alert('Date Loan Taken cannot be in the future.');
+  }
+
+  if(loan.value){
+    const d=new Date(loan.value+'T00:00:00');
+    d.setDate(d.getDate()+1);
+    ret.min=localISODate(d);
+    if(ret.value&&ret.value<ret.min){
+      ret.value='';
+      alert('Date to Return Loan must be later than Date Loan Taken.');
+    }
+  }else ret.min='';
+}
+function calculateNewLoanPreview(){
+  syncNewLoanPartner();
+  enforceLoanDates('loan');
+
+  const amount=numericValue('loanAmount');
+  const rate=numericValue('loanRate');
+  const loanDate=document.getElementById('loanDate').value;
+  const ret=document.getElementById('loanReturnDate').value;
+
+  const principal=Number.isFinite(amount)?amount:0;
+  const r=Number.isFinite(rate)?rate:0;
+  const days=(loanDate&&ret&&ret>loanDate)?dayDiff(loanDate,ret):0;
+  const interest=principal*r/100;
+  const due=principal+interest;
+  const daily=Math.pow(1+r/100,1/Math.max(1,days))-1;
+  const projected=availableCash()-principal;
+
+  document.getElementById('loanDays').value=days;
+  document.getElementById('loanPreviewInterest').value=money(interest);
+  document.getElementById('loanPreviewDue').value=money(due);
+  document.getElementById('loanPreviewDailyRate').value=(daily*100).toFixed(4)+'% per day';
+  document.getElementById('loanPreviewCash').value=money(projected);
+  document.getElementById('loanPreviewStatus').value=(ret&&ret<today)?'Overdue':'Active';
+}
+function createLoan(){
+  syncNewLoanPartner();
+  enforceLoanDates('loan');
+
+  const borrowerId=document.getElementById('loanBorrower').value;
+  const principal=numericValue('loanAmount');
+  const rate=numericValue('loanRate');
+  const loanDate=document.getElementById('loanDate').value;
+  const returnDate=document.getElementById('loanReturnDate').value;
+  const p1=numericValue('loanP1');
+  const p2=numericValue('loanP2');
+
+  if(!borrowerId)return alert('Please select a borrower.');
+  if(!Number.isFinite(principal)||principal<=0)return alert('Loan Amount must be a positive numeric value.');
+  if(!Number.isFinite(rate)||rate<0||rate>100)return alert('Agreed Flat Interest Rate must be a numeric value between 0% and 100%.');
+  if(!loanDate||!returnDate)return alert('Please enter both Date Loan Taken and Date to Return Loan.');
+  if(loanDate>today)return alert('Date Loan Taken cannot be in the future.');
+  if(returnDate<=loanDate)return alert('Date to Return Loan must be later than Date Loan Taken.');
+  if(!Number.isFinite(p1)||!Number.isFinite(p2)||Math.abs(p1+p2-100)>0.0001)return alert('Partner percentages must total exactly 100%.');
+  if(principal>availableCash()+0.005)return alert('Insufficient available money. Available balance is '+money(availableCash())+'.');
+
+  db.loans.push({
+    id:uid('L'),
+    borrowerId,
+    principal,
+    agreedRate:rate,
+    loanDate,
+    returnDate,
+    partner1Pct:p1,
+    partner2Pct:p2,
+    created:today
+  });
+
+  clearLoanForm();
+  saveDB();
+  alert('Loan created successfully.');
+}
+function clearLoanForm(){
+  document.getElementById('loanBorrower').value='';
+  document.getElementById('loanAmount').value='';
+  document.getElementById('loanRate').value='25';
+  document.getElementById('loanDate').value=today;
+  document.getElementById('loanReturnDate').value='';
+  document.getElementById('loanP1').value='80';
+  syncNewLoanPartner();
+  calculateNewLoanPreview();
+}
+
+/* ---------- Repayments ---------- */
+function renderRepaymentLoanOptions(){
+  const bid=document.getElementById('repayBorrower').value;
+  const select=document.getElementById('repayLoan');
+
+  const loans=db.loans.filter(l=>l.borrowerId===bid&&loanPosition(l,today).balance>0.005);
+  select.innerHTML='<option value="">Select loan...</option>'+loans.map(l=>{
+    const p=loanPosition(l,today);
+    const st=loanStatus(l)[0];
+    return `<option value="${l.id}">${l.loanDate} | ${st} | Balance ${money(p.balance)}</option>`;
+  }).join('');
+
+  renderRepaymentLoanSummary();
+}
+function renderRepaymentLoanSummary(){
+  const id=document.getElementById('repayLoan').value;
+  const box=document.getElementById('repaySummary');
+
+  if(!id){box.textContent='Select a loan to view its current position.';return;}
+
+  const loan=loanById(id);
+  const p=loanPosition(loan,today);
+  const st=loanStatus(loan)[0];
+
+  box.innerHTML=`
+    <div class="grid-4">
+      <div><strong>Loan Amount</strong><div>${money(loan.principal)}</div></div>
+      <div><strong>Current Balance</strong><div>${money(p.balance)}</div></div>
+      <div><strong>Total Repaid</strong><div>${money(p.totalPaid)}</div></div>
+      <div><strong>Status</strong><div>${st}</div></div>
+    </div>
+    <div class="note">Due date: ${esc(loan.returnDate)} · Current overdue interest: ${money(p.overdueInterest)}</div>`;
+}
+function recordRepayment(){
+  const loanId=document.getElementById('repayLoan').value;
+  const amount=numericValue('repayAmount');
+  const date=document.getElementById('repayDate').value;
+
+  if(!loanId)return alert('Please select a loan.');
+  if(!Number.isFinite(amount)||amount<=0)return alert('Amount Repaid must be a positive numeric value.');
+  if(!date)return alert('Please enter the Actual Repayment Date.');
+
+  const loan=loanById(loanId);
+  if(date<loan.loanDate)return alert('Actual Repayment Date cannot be before Date Loan Taken.');
+  if(date>today)return alert('Actual Repayment Date cannot be later than today.');
+
+  db.payments.push({
+    id:uid('P'),
+    loanId,
+    amount,
+    date,
+    method:document.getElementById('repayMethod').value,
+    notes:document.getElementById('repayNotes').value.trim()
+  });
+
+  clearRepaymentForm();
+  saveDB();
+  alert('Repayment recorded successfully.');
+}
+function clearRepaymentForm(){
+  document.getElementById('repayBorrower').value='';
+  document.getElementById('repayLoan').innerHTML='<option value="">Select loan...</option>';
+  document.getElementById('repayAmount').value='';
+  document.getElementById('repayDate').value=today;
+  document.getElementById('repayNotes').value='';
+  document.getElementById('repaySummary').textContent='Select a loan to view its current position.';
+}
+function renderRepaymentHistory(){
+  const q=(document.getElementById('repaymentSearch')?.value||'').toLowerCase();
+  const rows=db.payments.slice().sort((a,b)=>b.date.localeCompare(a.date)).filter(p=>{
+    const l=loanById(p.loanId);
+    const b=l?borrowerById(l.borrowerId):null;
+    const txt=b?(b.name+' '+b.surname+' '+(b.idNumber||'')+' '+b.phone):'';
+    return txt.toLowerCase().includes(q);
+  });
+
+  const wrap=document.getElementById('repaymentHistory');
+  if(!rows.length){wrap.innerHTML='<div class="note">No repayment records found.</div>';return;}
+
+  wrap.innerHTML='<table><thead><tr><th>Date</th><th>Borrower</th><th>Loan Date</th><th>Amount Repaid</th><th>Method</th><th>Notes</th></tr></thead><tbody>'+
+    rows.map(p=>{
+      const l=loanById(p.loanId);
+      const b=l?borrowerById(l.borrowerId):null;
+      return `<tr>
+        <td>${esc(p.date)}</td>
+        <td>${b?esc(b.name+' '+b.surname):'Unknown'}<div class="note">${b?esc(b.phone):''}</div></td>
+        <td>${l?esc(l.loanDate):''}</td>
+        <td>${money(p.amount)}</td>
+        <td>${esc(p.method||'')}</td>
+        <td>${esc(p.notes||'')}</td>
+      </tr>`;
+    }).join('')+
+    '</tbody></table>';
+}
+
+/* ---------- Update / Recall ---------- */
+function renderRecallResults(){
+  const q=(document.getElementById('recallSearch')?.value||'').trim().toLowerCase();
+  const box=document.getElementById('recallResults');
+
+  if(!q){box.innerHTML='<div class="note">Start typing to find a client.</div>';return;}
+
+  const rows=db.borrowers.filter(b=>(b.name+' '+b.surname+' '+(b.idNumber||'')+' '+b.phone+' '+b.address).toLowerCase().includes(q)).slice(0,20);
+  if(!rows.length){box.innerHTML='<div class="note">No matching client found.</div>';return;}
+
+  box.innerHTML='<table><thead><tr><th>Name</th><th>Surname</th><th>Identification Number</th><th>Phone</th><th>Address</th><th></th></tr></thead><tbody>'+
+    rows.map(b=>`<tr>
+      <td>${esc(b.name)}</td><td>${esc(b.surname)}</td><td>${esc(b.idNumber||'')}</td><td>${esc(b.phone)}</td><td>${esc(b.address)}</td>
+      <td><button class="secondary" onclick="selectRecallBorrower('${b.id}')">Recall Client</button></td>
+    </tr>`).join('')+
+    '</tbody></table>';
+}
+function selectRecallBorrower(id){
+  selectedRecallBorrowerId=id;
+  const b=borrowerById(id);
+  if(!b)return;
+
+  const loans=db.loans.filter(l=>l.borrowerId===id).slice().sort((a,b)=>b.loanDate.localeCompare(a.loanDate));
+  let active=0,overdue=0,paid=0,total=0;
+
+  loans.forEach(l=>{
+    const p=loanPosition(l,today);
+    total+=p.balance;
+    const st=loanStatus(l)[0];
+    if(st==='Paid')paid++;
+    else if(st==='Overdue')overdue++;
+    else active++;
+  });
+
+  document.getElementById('recalledClientPanel').innerHTML=`
+    <div class="client-card">
+      <div class="toolbar">
+        <div>
+          <div class="eyebrow">CLIENT SUMMARY</div>
+          <h2 style="margin:3px 0">${esc(b.name)} ${esc(b.surname)}</h2>
+          <div class="note">ID: ${esc(b.idNumber||'Not recorded')} · ${esc(b.phone)} · ${esc(b.address)}</div>
+        </div>
+        <div class="actions">
+          <button class="secondary" onclick="editBorrower('${b.id}')">Edit Personal Details</button>
+          <button class="primary" onclick="startNewLoanFromRecall('${b.id}')">Create New Loan</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><small>Total Loans</small><strong>${loans.length}</strong></div>
+        <div class="stat"><small>Active</small><strong>${active}</strong></div>
+        <div class="stat"><small>Overdue</small><strong>${overdue}</strong></div>
+        <div class="stat"><small>Paid</small><strong>${paid}</strong></div>
+      </div>
+
+      <div class="note"><strong>Total Outstanding:</strong> ${money(total)}</div>
+
+      <div class="table-wrap" style="margin-top:12px">
+        ${loans.length?`
+          <table>
+            <thead><tr>
+              <th>Loan Date</th><th>Return Date</th><th>Loan Amount</th><th>Total Repaid</th><th>Balance</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody>
+              ${loans.map(l=>{
+                const p=loanPosition(l,today);
+                const st=loanStatus(l);
+                return `<tr>
+                  <td>${esc(l.loanDate)}</td><td>${esc(l.returnDate)}</td><td>${money(l.principal)}</td>
+                  <td>${money(p.totalPaid)}</td><td>${money(p.balance)}</td>
+                  <td><span class="badge ${st[1]}">${st[0]}</span></td>
+                  <td>
+                    <button class="secondary" onclick="openLoanEdit('${l.id}')">Update Loan</button>
+                    ${p.balance>0.005?`<button class="success" onclick="startRepaymentForLoan('${l.id}')">Record Repayment</button>`:''}
+                  </td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>`:
+          '<div class="note">This client has no loans yet.</div>'
+        }
+      </div>
+    </div>`;
+}
+function startNewLoanFromRecall(id){
+  const tab=[...document.querySelectorAll('.tabs button')].find(x=>x.textContent==='New Loan');
+  showTab('loans',tab);
+  document.getElementById('loanBorrower').value=id;
+  clearLoanFieldsButKeepBorrower();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function clearLoanFieldsButKeepBorrower(){
+  document.getElementById('loanAmount').value='';
+  document.getElementById('loanRate').value='25';
+  document.getElementById('loanDate').value=today;
+  document.getElementById('loanReturnDate').value='';
+  document.getElementById('loanP1').value='80';
+  syncNewLoanPartner();
+  calculateNewLoanPreview();
+}
+function startRepaymentForLoan(id){
+  const loan=loanById(id);
+  if(!loan)return;
+  const tab=[...document.querySelectorAll('.tabs button')].find(x=>x.textContent==='Repayments');
+  showTab('repayments',tab);
+  document.getElementById('repayBorrower').value=loan.borrowerId;
+  renderRepaymentLoanOptions();
+  document.getElementById('repayLoan').value=id;
+  renderRepaymentLoanSummary();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ---------- Update Existing Loan ---------- */
+function syncEditPartner(){
+  const p1=numericValue('editP1');
+  const p2=document.getElementById('editP2');
+  if(!Number.isFinite(p1)){p2.value='';return;}
+  if(p1<0){document.getElementById('editP1').value='0';p2.value='100';return;}
+  if(p1>100){document.getElementById('editP1').value='100';p2.value='0';return;}
+  p2.value=Number((100-p1).toFixed(4)).toString();
+}
+function openLoanEdit(id){
+  const loan=loanById(id);
+  if(!loan)return alert('Loan record not found.');
+  editingLoanId=id;
+
+  document.getElementById('editLoanAmount').value=loan.principal;
+  document.getElementById('editLoanRate').value=loan.agreedRate;
+  document.getElementById('editP1').value=loan.partner1Pct;
+  document.getElementById('editLoanDate').value=loan.loanDate;
+  document.getElementById('editReturnDate').value=loan.returnDate;
+  syncEditPartner();
+
+  document.getElementById('loanEditCard').classList.remove('hidden');
+  calculateEditLoanPreview();
+  document.getElementById('loanEditCard').scrollIntoView({behavior:'smooth'});
+}
+function calculateEditLoanPreview(){
+  if(!editingLoanId)return;
+  syncEditPartner();
+  enforceLoanDates('edit');
+
+  const loan=loanById(editingLoanId);
+  if(!loan)return;
+
+  const principal=numericValue('editLoanAmount');
+  const rate=numericValue('editLoanRate');
+  const loanDate=document.getElementById('editLoanDate').value;
+  const returnDate=document.getElementById('editReturnDate').value;
+  const p1=numericValue('editP1');
+  const p2=numericValue('editP2');
+
+  const temp={
+    ...loan,
+    principal:Number.isFinite(principal)?principal:0,
+    agreedRate:Number.isFinite(rate)?rate:0,
+    loanDate,
+    returnDate,
+    partner1Pct:Number.isFinite(p1)?p1:0,
+    partner2Pct:Number.isFinite(p2)?p2:0
+  };
+
+  const pos=(loanDate&&returnDate&&returnDate>loanDate)?loanPosition(temp,today):{balance:0,totalPaid:0,overdueInterest:0,totalInterestAccrued:0};
+  const st=(loanDate&&returnDate&&returnDate>loanDate)?loanStatus(temp)[0]:'Invalid Dates';
+
+  document.getElementById('editLoanSummary').innerHTML=`
+    <div class="grid-4">
+      <div><strong>Current Balance</strong><div>${money(pos.balance)}</div></div>
+      <div><strong>Total Repaid</strong><div>${money(pos.totalPaid)}</div></div>
+      <div><strong>Overdue Interest</strong><div>${money(pos.overdueInterest)}</div></div>
+      <div><strong>Status</strong><div>${st}</div></div>
+    </div>`;
+}
+function saveLoanUpdate(){
+  if(!editingLoanId)return alert('No loan selected.');
+
+  const principal=numericValue('editLoanAmount');
+  const rate=numericValue('editLoanRate');
+  const loanDate=document.getElementById('editLoanDate').value;
+  const returnDate=document.getElementById('editReturnDate').value;
+  const p1=numericValue('editP1');
+  const p2=numericValue('editP2');
+
+  if(!Number.isFinite(principal)||principal<=0)return alert('Loan Amount must be a positive numeric value.');
+  if(!Number.isFinite(rate)||rate<0||rate>100)return alert('Agreed Flat Interest Rate must be a numeric value between 0% and 100%.');
+  if(!loanDate||!returnDate)return alert('Please enter both Date Loan Taken and Date to Return Loan.');
+  if(loanDate>today)return alert('Date Loan Taken cannot be in the future.');
+  if(returnDate<=loanDate)return alert('Date to Return Loan must be later than Date Loan Taken.');
+  if(!Number.isFinite(p1)||!Number.isFinite(p2)||Math.abs(p1+p2-100)>0.0001)return alert('Partner percentages must total exactly 100%.');
+
+  const loan=loanById(editingLoanId);
+  if(!loan)return alert('Loan record not found.');
+
+  // Recalculate cash impact fairly by removing original principal first.
+  const availableWithoutThisLoan=availableCash()+Number(loan.principal||0);
+  if(principal>availableWithoutThisLoan+0.005)return alert('Insufficient available money for this corrected loan amount.');
+
+  Object.assign(loan,{principal,agreedRate:rate,loanDate,returnDate,partner1Pct:p1,partner2Pct:p2});
+  closeLoanEdit();
+  saveDB();
+
+  if(selectedRecallBorrowerId)selectRecallBorrower(selectedRecallBorrowerId);
+  alert('Loan record updated.');
+}
+function closeLoanEdit(){
+  editingLoanId=null;
+  document.getElementById('loanEditCard').classList.add('hidden');
+}
+
+/* ---------- Dashboard ---------- */
+function renderDashboardTable(){
+  const q=(document.getElementById('dashboardSearch')?.value||'').toLowerCase();
+  const loans=db.loans.filter(l=>{
+    const b=borrowerById(l.borrowerId);
+    const txt=b?(b.name+' '+b.surname+' '+b.phone+' '+b.address):'';
+    return txt.toLowerCase().includes(q);
+  });
+
+  const wrap=document.getElementById('dashboardTable');
+  if(!loans.length){wrap.innerHTML='<div class="note">No matching loans.</div>';return;}
+
+  wrap.innerHTML='<table><thead><tr>'+
+    '<th>Borrower</th><th>Identification Number</th><th>Phone</th><th>Loan</th><th>Loan Date</th><th>Return Date</th>'+
+    '<th>Rate</th><th>Partner 1 %</th><th>Partner 2 %</th><th>Partner 1 Interest</th><th>Partner 2 Interest</th>'+
+    '<th>Total Repaid</th><th>Current Balance</th><th>Overdue Interest</th><th>Status</th>'+
+    '</tr></thead><tbody>'+
+    loans.map(l=>{
+      const b=borrowerById(l.borrowerId);
+      const p=loanPosition(l,today);
+      const st=loanStatus(l);
+      return `<tr>
+        <td>${b?esc(b.name+' '+b.surname):'Unknown'}</td>
+        <td>${b?esc(b.idNumber||''):''}</td>
+        <td>${b?esc(b.phone):''}</td>
+        <td>${money(l.principal)}</td>
+        <td>${esc(l.loanDate)}</td><td>${esc(l.returnDate)}</td>
+        <td>${Number(l.agreedRate).toFixed(2)}%</td>
+        <td>${Number(l.partner1Pct||0).toFixed(2)}%</td>
+        <td>${Number(l.partner2Pct||0).toFixed(2)}%</td>
+        <td>${money(p.totalInterestAccrued*Number(l.partner1Pct||0)/100)}</td>
+        <td>${money(p.totalInterestAccrued*Number(l.partner2Pct||0)/100)}</td>
+        <td>${money(p.totalPaid)}</td>
+        <td><strong>${money(p.balance)}</strong></td>
+        <td>${money(p.overdueInterest)}</td>
+        <td><span class="badge ${st[1]}">${st[0]}</span></td>
+      </tr>`;
+    }).join('')+
+    '</tbody></table>';
+}
+function renderDashboardStats(){
+  const totalPrincipal=db.loans.reduce((s,l)=>s+Number(l.principal||0),0);
+  const totalRepaid=db.payments.reduce((s,p)=>s+Number(p.amount||0),0);
+  const pi=partnerInterestTotals();
+
+  let active=0,overdue=0;
+  db.loans.forEach(l=>{
+    const st=loanStatus(l)[0];
+    if(st==='Active')active++;
+    if(st==='Overdue')overdue++;
+  });
+
+  document.getElementById('availableFunds').textContent=money(availableCash());
+  document.getElementById('dashAvailable').textContent=money(availableCash());
+  document.getElementById('dashPrincipal').textContent=money(totalPrincipal);
+  document.getElementById('dashOutstanding').textContent=money(totalOutstanding());
+  document.getElementById('dashRepaid').textContent=money(totalRepaid);
+  document.getElementById('dashP1').textContent=money(pi.p1);
+  document.getElementById('dashP2').textContent=money(pi.p2);
+  document.getElementById('dashActive').textContent=active;
+  document.getElementById('dashOverdue').textContent=overdue;
+}
+
+/* ---------- Reports / PDF ---------- */
+function reportLoans(from,to){
+  return db.loans.filter(l=>{
+    if(from&&l.loanDate<from)return false;
+    if(to&&l.loanDate>to)return false;
+    return true;
+  });
+}
+function renderReportSummary(){
+  const from=document.getElementById('reportFrom').value;
+  const to=document.getElementById('reportTo').value;
+  const loans=reportLoans(from,to);
+  const pi=partnerInterestTotals(loans);
+  const principal=loans.reduce((s,l)=>s+Number(l.principal||0),0);
+  const outstanding=loans.reduce((s,l)=>s+loanPosition(l,today).balance,0);
+
+  document.getElementById('reportSummary').innerHTML=`
+    <div class="stat"><small>Loans in Report</small><strong>${loans.length}</strong></div>
+    <div class="stat"><small>Principal Lent</small><strong>${money(principal)}</strong></div>
+    <div class="stat"><small>Partner 1 Accrued Interest</small><strong>${money(pi.p1)}</strong></div>
+    <div class="stat"><small>Partner 2 Accrued Interest</small><strong>${money(pi.p2)}</strong></div>`;
+}
+function pdfSafeText(v){
+  return String(v??'').replace(/[^\x20-\x7E]/g,' ').replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+}
+function textCmd(x,y,size,text,bold=false){
+  return `BT /${bold?'F2':'F1'} ${size} Tf ${x} ${y} Td (${pdfSafeText(text)}) Tj ET`;
+}
+function rectCmd(x,y,w,h,fillGray=null){
+  const a=[];
+  if(fillGray!==null)a.push(`${fillGray} g ${x} ${y} ${w} ${h} re f 0 g`);
+  a.push(`${x} ${y} ${w} ${h} re S`);
+  return a.join('\n');
+}
+function makeSimplePdf(pages){
+  const objects=[null];
+  const add=s=>{objects.push(s);return objects.length-1;};
+  const f1=add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+  const f2=add('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');
+  const pagesObj=add('');
+  const pageObjs=[];
+
+  pages.forEach(cmds=>{
+    const stream=cmds.join('\n');
+    const content=add(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
+    const page=add(`<< /Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 1191 842] /Resources << /Font << /F1 ${f1} 0 R /F2 ${f2} 0 R >> >> /Contents ${content} 0 R >>`);
+    pageObjs.push(page);
+  });
+
+  objects[pagesObj]=`<< /Type /Pages /Kids [${pageObjs.map(n=>n+' 0 R').join(' ')}] /Count ${pageObjs.length} >>`;
+  const catalog=add(`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`);
+
+  let pdf='%PDF-1.4\n',offsets=[0];
+  for(let i=1;i<objects.length;i++){offsets[i]=pdf.length;pdf+=`${i} 0 obj\n${objects[i]}\nendobj\n`;}
+  const xref=pdf.length;
+  pdf+=`xref\n0 ${objects.length}\n0000000000 65535 f \n`;
+  for(let i=1;i<objects.length;i++)pdf+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';
+  pdf+=`trailer\n<< /Size ${objects.length} /Root ${catalog} 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return new Blob([pdf],{type:'application/pdf'});
+}
+function wrapPdfText(text,width,size){
+  const raw=String(text??'');
+  const max=Math.max(3,Math.floor(width/(size*0.53)));
+  if(raw.length<=max)return [raw];
+
+  const words=raw.split(/\s+/),lines=[];
+  let line='';
+  words.forEach(word=>{
+    const test=line?line+' '+word:word;
+    if(test.length<=max)line=test;
+    else{
+      if(line)lines.push(line);
+      if(word.length>max){
+        let remain=word;
+        while(remain.length>max){lines.push(remain.slice(0,max));remain=remain.slice(max);}
+        line=remain;
+      }else line=word;
+    }
+  });
+  if(line)lines.push(line);
+  return lines.slice(0,3);
+}
+function drawCell(c,x,y,w,h,text,size=6.6,bold=false){
+  const lines=wrapPdfText(text,w-6,size);
+  const lh=size+2,total=lines.length*lh;
+  let ty=y+(h+total)/2-lh+1;
+  lines.forEach(line=>{c.push(textCmd(x+3,ty,size,line,bold));ty-=lh;});
+}
+function buildReportPage(rows,pageNo,totalPages,period,summary){
+  const c=['0.45 w'],left=24,pageW=1191,contentW=1143;
+
+  c.push(textCmd(left,810,18,'Money Lending Report',true));
+  c.push(textCmd(left,792,8,period));
+  c.push(textCmd(1080,810,8,`Page ${pageNo} of ${totalPages}`));
+
+  const cards=[
+    ['Available Cash',money(summary.available)],
+    ['Outstanding',money(summary.outstanding)],
+    ['Partner 1 Interest',money(summary.p1)],
+    ['Partner 2 Interest',money(summary.p2)]
+  ];
+  const gap=10,cardW=(contentW-gap*3)/4,cardY=728,cardH=52;
+
+  cards.forEach((card,i)=>{
+    const x=left+i*(cardW+gap);
+    c.push(rectCmd(x,cardY,cardW,cardH,0.97));
+    c.push(textCmd(x+10,cardY+33,8,card[0]));
+    c.push(textCmd(x+10,cardY+12,14,card[1],true));
+  });
+
+  c.push(textCmd(left,700,16,'Loan Register',true));
+
+  const headers=[
+    'Name','Surname','ID Number','Phone','Address','Loan','Loan Date','Return Date','Days','Agreed Rate',
+    'Interest','Due at Return','Days Overdue','Daily Rate','Overdue Interest','Current Due',
+    'Total Repaid','Balance','Partner 1 %','Partner 2 %','Partner 1 Interest','Partner 2 Interest','Status'
+  ];
+  const widths=[55,55,60,52,68,46,50,50,26,39,41,47,39,41,47,47,47,47,35,35,47,47,40];
+  const scale=contentW/widths.reduce((a,b)=>a+b,0);
+  const scaled=widths.map(w=>w*scale);
+
+  let x=left;
+  const headerY=636,headerH=44,rowH=31;
+  c.push(rectCmd(left,headerY,contentW,headerH,0.96));
+
+  headers.forEach((h,i)=>{
+    c.push(rectCmd(x,headerY,scaled[i],headerH,null));
+    drawCell(c,x,headerY,scaled[i],headerH,h,7,true);
+    x+=scaled[i];
+  });
+
+  let y=headerY-rowH;
+  rows.forEach(row=>{
+    x=left;
+    row.forEach((cell,i)=>{
+      c.push(rectCmd(x,y,scaled[i],rowH,null));
+      drawCell(c,x,y,scaled[i],rowH,cell,(i===0||i===1)?7.2:6.6,false);
+      x+=scaled[i];
+    });
+    y-=rowH;
+  });
+
+  return c;
+}
+function downloadLoanReport(){
+  const from=document.getElementById('reportFrom').value;
+  const to=document.getElementById('reportTo').value;
+
+  if(from&&to&&from>to)return alert('Report From date cannot be later than Report To date.');
+  if(to&&to>today)return alert('Report To date cannot be in the future.');
+
+  const loans=reportLoans(from,to);
+  if(!loans.length)return alert('There are no loan records for the selected period.');
+
+  const rows=loans.map(l=>{
+    const b=borrowerById(l.borrowerId)||{};
+    const p=loanPosition(l,today);
+    const st=loanStatus(l)[0];
+    const days=dayDiff(l.loanDate,l.returnDate);
+    const daily=Math.pow(1+Number(l.agreedRate)/100,1/Math.max(1,days))-1;
+    const interest=Number(l.principal)*Number(l.agreedRate)/100;
+    const overdueDays=today>l.returnDate&&p.balance>0.005?dayDiff(l.returnDate,today):0;
+    return [
+      b.name||'',b.surname||'',b.idNumber||'',b.phone||'',b.address||'',money(l.principal),
+      l.loanDate,l.returnDate,days,Number(l.agreedRate).toFixed(2)+'%',money(interest),
+      money(Number(l.principal)+interest),overdueDays,(daily*100).toFixed(4)+'%',
+      money(p.overdueInterest),money(p.balance),money(p.totalPaid),money(p.balance),
+      Number(l.partner1Pct).toFixed(2)+'%',Number(l.partner2Pct).toFixed(2)+'%',
+      money(p.totalInterestAccrued*Number(l.partner1Pct)/100),
+      money(p.totalInterestAccrued*Number(l.partner2Pct)/100),st
+    ];
+  });
+
+  const pi=partnerInterestTotals(loans);
+  const summary={available:availableCash(),outstanding:loans.reduce((s,l)=>s+loanPosition(l,today).balance,0),p1:pi.p1,p2:pi.p2};
+
+  const chunks=[];
+  for(let i=0;i<rows.length;i+=16)chunks.push(rows.slice(i,i+16));
+
+  const period=`Report period: ${from||'Beginning'} to ${to||today}`;
+  const pages=chunks.map((chunk,i)=>buildReportPage(chunk,i+1,chunks.length,period,summary));
+
+  const blob=makeSimplePdf(pages),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='loan-report-'+(from||'start')+'-to-'+(to||today)+'.pdf';
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+
+/* ---------- Backup / Migration ---------- */
+function exportData(){
+  const blob=new Blob([JSON.stringify({version:6,dataMode,exportedAt:new Date().toISOString(),...db},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='money-lending-'+dataMode+'-backup-'+today+'.json';
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+function importData(e){
+  const f=e.target.files[0];
+  if(!f)return;
+
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const parsed=JSON.parse(r.result);
+
+      if(Array.isArray(parsed.borrowers)&&Array.isArray(parsed.loans)&&Array.isArray(parsed.payments)){
+        db={
+          startingFund:Number(parsed.startingFund||0),
+          borrowers:parsed.borrowers,
+          loans:parsed.loans,
+          payments:parsed.payments
+        };
+      }else if(Array.isArray(parsed.records)){
+        migrateLegacyRecords(parsed.records,Number(parsed.startingFund||0));
+      }else if(Array.isArray(parsed)){
+        migrateLegacyRecords(parsed,db.startingFund);
+      }else{
+        throw new Error();
+      }
+
+      saveDB();
+      alert('Backup restored successfully.');
+    }catch{
+      alert('Invalid or unsupported backup file.');
+    }
+    e.target.value='';
+  };
+  r.readAsText(f);
+}
+function migrateLegacyRecords(records,startingFundValue){
+  const borrowerMap=new Map();
+  const borrowers=[],loans=[],payments=[];
+
+  records.forEach((r,i)=>{
+    const phone=String(r.phone||'').replace(/\D/g,'');
+    const key=phone||[r.name,r.surname,r.address].join('|').toLowerCase();
+
+    let b=borrowerMap.get(key);
+    if(!b){
+      b={
+        id:uid('B'),
+        name:String(r.name||''),
+        surname:String(r.surname||''),
+        idNumber:String(r.idNumber||r.identificationNumber||r.id_number||'').toUpperCase(),
+        phone,
+        address:String(r.address||''),
+        created:r.loanDate||today
+      };
+      borrowerMap.set(key,b);
+      borrowers.push(b);
+    }
+
+    const lid=uid('L');
+    loans.push({
+      id:lid,
+      borrowerId:b.id,
+      principal:Number(r.principal||r.loanAmount||0),
+      agreedRate:Number(r.agreedRate??25),
+      loanDate:r.loanDate||r.loan_date||'',
+      returnDate:r.returnDate||r.return_date||'',
+      partner1Pct:Number(r.partner1Pct??80),
+      partner2Pct:Number(r.partner2Pct??20),
+      created:r.loanDate||today
+    });
+
+    (r.repayments||[]).forEach(p=>{
+      const amount=Number(p.amount||0);
+      const date=p.date||p.payment_date||'';
+      if(amount>0&&date){
+        payments.push({id:uid('P'),loanId:lid,amount,date,method:'Imported',notes:'Imported from previous version'});
+      }
+    });
+  });
+
+  db={startingFund:Number(startingFundValue||0),borrowers,loans,payments};
+}
+function loadDB(){
+  try{
+    const stored=JSON.parse(localStorage.getItem(currentDBKey())||'null');
+    if(stored&&Array.isArray(stored.borrowers)&&Array.isArray(stored.loans)&&Array.isArray(stored.payments)){
+      db=stored;
+      return;
+    }
+  }catch{}
+
+  // Attempt migration from the immediately previous single-register version only in Live Mode.
+  if(dataMode==='test') return;
+  try{
+    const legacy=JSON.parse(localStorage.getItem(LEGACY_RECORD_KEY)||'[]');
+    const fund=Number(localStorage.getItem(LEGACY_FUND_KEY)||0);
+    if(Array.isArray(legacy)&&legacy.length){
+      migrateLegacyRecords(legacy,fund);
+      localStorage.setItem(currentDBKey(),JSON.stringify(db));
+    }
+  }catch{}
+}
+function freshDB(){return {startingFund:0,borrowers:[],loans:[],payments:[]};}
+function updateModeUI(){
+  const test=dataMode==='test';
+  document.getElementById('modeBar')?.classList.toggle('test',test);
+  document.getElementById('modeLabel').textContent=test?'TEST':'LIVE';
+  document.getElementById('modeHelp').innerHTML=test?'<span class="test-warning">TEST MODE: Everything entered here is separate from Live Mode and can be safely reset.</span>':'Live Mode stores your real working records.';
+  document.getElementById('modeToggleBtn').textContent=test?'Return to Live Mode':'Switch to Test Mode';
+  document.getElementById('resetTestBtn').classList.toggle('hidden',!test);
+}
+function toggleDataMode(){
+  const next=dataMode==='live'?'test':'live';
+  if(!confirm('Switch to '+next.toUpperCase()+' Mode? Your '+dataMode.toUpperCase()+' data will remain saved and unchanged.'))return;
+  dataMode=next;localStorage.setItem(MODE_KEY,dataMode);db=freshDB();loadDB();
+  clearBorrowerForm();clearLoanForm();clearRepaymentForm();closeLoanEdit();selectedRecallBorrowerId=null;
+  updateModeUI();renderAll();
+}
+function resetTestData(){
+  if(dataMode!=='test')return;
+  if(!confirm('Delete ALL Test Mode borrowers, loans, repayments and test starting fund? Live data will NOT be affected.'))return;
+  localStorage.removeItem(TEST_DB_KEY);db=freshDB();clearBorrowerForm();clearLoanForm();clearRepaymentForm();closeLoanEdit();selectedRecallBorrowerId=null;renderAll();alert('Test data has been cleared. Live data was not changed.');
+}
+
+function renderAll(){
+  document.getElementById('startingFund').value=db.startingFund||'';
+  renderClientSearchResults();
+  renderBorrowers();
+  renderBorrowerSelects();
+  renderDashboardStats();
+  renderDashboardTable();
+  renderRepaymentHistory();
+  renderRepaymentLoanOptions();
+  renderRecallResults();
+  renderReportSummary();
+  calculateNewLoanPreview();
+}
+
+/* ---------- Initialization ---------- */
+loadDB();
+updateModeUI();
+
+document.getElementById('loanDate').value=today;
+document.getElementById('repayDate').value=today;
+document.getElementById('loanDate').max=today;
+document.getElementById('repayDate').max=today;
+document.getElementById('reportFrom').max=today;
+document.getElementById('reportTo').max=today;
+
+document.getElementById('loanDate').addEventListener('change',()=>{enforceLoanDates('loan');calculateNewLoanPreview();});
+document.getElementById('loanReturnDate').addEventListener('change',()=>{enforceLoanDates('loan');calculateNewLoanPreview();});
+document.getElementById('repayDate').addEventListener('change',()=>{
+  const id=document.getElementById('repayLoan').value;
+  const l=id?loanById(id):null;
+  const d=document.getElementById('repayDate');
+  d.max=today;
+  if(l)d.min=l.loanDate;
+  if(d.value>today){d.value='';alert('Actual Repayment Date cannot be later than today.');}
+  if(l&&d.value<l.loanDate){d.value='';alert('Actual Repayment Date cannot be before Date Loan Taken.');}
+});
+document.getElementById('reportFrom').addEventListener('change',renderReportSummary);
+document.getElementById('reportTo').addEventListener('change',renderReportSummary);
+document.getElementById('editLoanDate').addEventListener('change',()=>{enforceLoanDates('edit');calculateEditLoanPreview();});
+document.getElementById('editReturnDate').addEventListener('change',()=>{enforceLoanDates('edit');calculateEditLoanPreview();});
+
+syncNewLoanPartner();
+renderAll();
+</script>
+</body>
+</html>
